@@ -23,7 +23,7 @@ plot(analog_write(range_2), sensor_reading(range_2));
 sensor_voltage = (sensorvsinput.SensorReading).*(3.3/1023);
 
 %terms from datasheet page 10, sens from table
-Vq = 3.3/2;
+Vq = 5/2;
 sensitivity_term = 7.5; % changes by device & voltage
 temp_effect = sensitivity_term*(1+(22-25)*.0012); %assuming 22 deg celsius 
 % solve for magnetic flux b
