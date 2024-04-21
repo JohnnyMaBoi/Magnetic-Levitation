@@ -17,7 +17,7 @@
 // float sensitivity_term = 7.5; // changes by device & voltage
 // float temp_effect = sensitivity_term*(1+(22-25)*.0012); // assuming 22 deg celsius 
 float temp_effect = 7.5*(1+(22-25)*.0012); // assuming 22 deg celsius 
-int hall_vcc = 3300; // running voltage of hall, 3.3 v in mV
+int hall_vcc = 5000; // running voltage of hall, 5v in mV
 float hall_vq = hall_vcc/2;
 int hall; // analog output variable 
 
