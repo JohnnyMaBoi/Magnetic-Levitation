@@ -28,7 +28,7 @@ unsigned long currentMillis;
 float hall_mT(int hall_analog){
     // % solve for magnetic flux in units of mT
     // voltages are all in units of mV
-    int hall_vout = (hall_analog/1024)*5000; 
+    float hall_vout = (hall_analog/1024.0)*5000; 
     float sensor_flux = (hall_vout - hall_vq)/(temp_effect);
     return sensor_flux;
 }
@@ -50,15 +50,15 @@ void loop() {
     
     Serial.println(String(analogRead(SENSOR_PIN)));
     // read sensor analog value
-     hall = analogRead(SENSOR_PIN);
+    hall = analogRead(SENSOR_PIN);
     currentMillis = millis();
     // plot processed and unprocessed result
     Serial.print(">hall_mT:");
-    Serial.print(String(currentMillis));
+    Serial.print(String(currentMillis)+":");
     Serial.println(hall_mT(hall));
 
     Serial.print(">hall_analog:");
-    Serial.print(String(currentMillis));
+    Serial.print(String(currentMillis)+":");
     Serial.println(hall);
 
 }

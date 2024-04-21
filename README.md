@@ -11,21 +11,24 @@ Required packages (see useful links): Platformio vscode extension + package
 
 ## Quick Start:
 
-After installing platformio, click the sidebar icon and use the option "select
-folder" and select the folder containing platformio.ini \
-To upload a main script to the arduino, use the command pio run -t upload -e {name_after_main}
-\
-i.e. pio run -t upload -e ramp to run main-ramp.cpp
+- After installing platformio and teleplot, click the sidebar icon and use the
+  option "select folder" and select the folder containing platformio.ini to
+  enter the platformio development environment
+- To upload a main script to the arduino, use the command pio run -t upload -e
+  {name_after_main} \
+  i.e. pio run -t upload -e ramp to run main-ramp.cpp
+- click teleplot icon (bottom bar), select the serial port, and click open to
+  display live debug graphs
 
 ## Useful Links
 
 https://community.platformio.org/t/multiple-main-cpp-files/26181 \
-// multiple platformio main scripts compiled through {pio run -t upload -e blink}
-to upload script main-blink.cpp for example
+// multiple platformio main scripts compiled through {pio run -t upload -e ramp}
+to upload script main-ramp.cpp for example
 
 https://docs.platformio.org/en/latest/integration/ide/vscode.html#serial-udp-plotter
 \
-// idk if you already used this but plots serial data live
+// Plots serial data live
 
 https://electronics.stackexchange.com/questions/255040/control-electromagnet-with-pwm-any-risks
 \
