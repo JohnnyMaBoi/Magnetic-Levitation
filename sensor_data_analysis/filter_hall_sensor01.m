@@ -56,7 +56,7 @@ plot(hall_mT.timestampms, peak_detector_bottom, 'g-');
 
 %% bouncer average
 filter_len = 3;
-buffer_factor = -0.5;
+buffer_factor = -0.8;
 
 filtered_mT = zeros(size(hall_mT.hall_mT));
 filtered_mT(1:filter_len) = hall_mT.hall_mT(1);
@@ -71,6 +71,9 @@ for idx = 2:length(hall_mT.hall_mT)
     moving_min_value = min(hall_mT.hall_mT(idx - moving_max_len:idx - 1));
     max_vals(idx) = moving_max_value;
     min_vals(idx) = moving_min_value;
+    minmax_diff = max_vals(idx) - min_vals(idx);
+    max_vals(idx) = max_vals(idx) + minmax_diff * buffer_factor;
+    min_vals(idx) = moving_min_value - minmax_diff * buffer_factor;
 
     if filtered_mT(idx - 1) < moving_min_value || filtered_mT(idx - 1) > moving_max_value
         filtered_mT(idx) = (moving_min_value + moving_max_value) ./ 2;
