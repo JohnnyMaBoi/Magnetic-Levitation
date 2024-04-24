@@ -1,14 +1,13 @@
 #include <Arduino.h>
 
+#include "constants.h"
+#include "solenoid_funcs.h"
+
 // Basic sketch for trying out the Adafruit DRV8871 Breakout
 // at 13 Ohms
 // -3.83V maximum (repeated twice)
 // + 3.83V maximum (repeated twice)
 // super non-linear though. It's much slower near small signals and changes much more rapidly above ~1V
-
-#define MOTOR_IN1 9
-#define MOTOR_IN2 10
-#define SENSOR_PIN A0
 
 void setup() {
     Serial.begin(115200);
@@ -17,17 +16,14 @@ void setup() {
     Serial.println("DRV8871 test");
     Serial.println("");
     Serial.println("Analog Write Value, Sensor Reading");
-
-    pinMode(MOTOR_IN1, OUTPUT);
-    pinMode(MOTOR_IN2, OUTPUT);
-    pinMode(SENSOR_PIN, INPUT);
+    setup_solenoid();
 }
 
 void loop() {
     // ramp up forward
     digitalWrite(MOTOR_IN1, LOW);
     for (int i = 0; i < 255; i++) {
-        analogWrite(MOTOR_IN2, i);
+        write_solenoid(i);
         Serial.println(String(-i) + ", " + String(analogRead(SENSOR_PIN)));
         delay(100);
     }

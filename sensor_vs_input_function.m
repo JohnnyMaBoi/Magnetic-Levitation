@@ -18,7 +18,10 @@ range_4 = logical(full_range);
 range_4(sweep_len * 5 + 1:end) = true;
 % plot(analog_write(range_1), sensor_reading(range_1));
 plot(analog_write(range_2), sensor_reading(range_2));
-
+plot(analog_write(range_2), match_solenoid_value(analog_write(range_2)));
+a = polyfit(analog_write(range_2), movmean(sensor_reading(range_2), 40), 3);
+plot(analog_write(range_2), analog_write(range_2) .^ 3 .* a(1) + analog_write(range_2) .^ 2 .* a(2) + analog_write(range_2) .* a(3) + a(4));
+%%
 % sensor reading is 
 sensor_voltage = (sensorvsinput.SensorReading).*(3.3/1023);
 
@@ -34,7 +37,7 @@ time = 1:size(sensorvsinput.AnalogWriteValue);
 solenoid_scale = .1/1024;
 hold on;
 plot(time, sensor_flux, Color='r')
-plot(time, analog_write*solenoid_scale, Color='b')
+plot(time, analog_write .* solenoid_scale, Color='b');
 xlabel("Sensor readings over time")
 legend("Sensed flux in Teslas", "INCORRECT SCALE solenoid current")
 title("Sensor Flux in Teslas")
