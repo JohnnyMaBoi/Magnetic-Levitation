@@ -23,15 +23,16 @@ void setup() {
     startMillis = millis();  // initial start time
 }
 
-int steady_state_output = 207;
-float steady_state_hall_effect = 34;
 float Kp = 5;
 float Kd = Kd / 30;
-int controller(float hall_mT, float prev_hall_mT) {
-    float hall_difference = hall_mT - steady_state_hall_effect;
-    float dhalldt = hall_mT - prev_hall_mT;
-    return between(50, 250, steady_state_output - int(Kd * dhalldt) - int(Kp * hall_difference));
-    // return between(50, 250, steady_state_output - int(Kp * hall_difference));
+unsigned long last_controller_millis = 0;
+float prev_distance_mm = 0;
+int controller(float distance_mm) {
+    unsigned long current_millis = millis();
+    unsigned long dt_milliseconds = current_millis - last_controller_millis;
+    last_controller_millis = current_millis;
+    float dhalldt_mm_per_s = float(distance_mm - prev_distance_mm) / float(dt_milliseconds * MILLISECONDS_TO_SECONDS);
+    return between(50, 250, int(Kd * dhalldt_mm_per_s) + int(Kp * distance_mm));
 }
 
 int between(int lower, int upper, int val) {
@@ -45,14 +46,10 @@ int between(int lower, int upper, int val) {
 }
 
 void loop() {
-    hall = analogRead(SENSOR_PIN);
-    Serial.println(String(hall));
-    // read sensor analog value
     currentMillis = millis();
-    // plot processed and unprocessed result
-    prev_moving_average_value = new_moving_average_value;
-    new_moving_average_value = moving_average_filter(hall_mT(hall), hall_mT_moving_average_array, hall_mT_moving_average_size);
-    controller_val = controller(new_moving_average_value, prev_moving_average_value);
+    float distance_mm = get_filtered_distance_cm() * 10;
+    controller_val = controller(distance_mm);
+    write_solenoid(controller_val);
 
     Serial.print(">hall_mT_filtered:");
     Serial.print(String(currentMillis) + ":");
