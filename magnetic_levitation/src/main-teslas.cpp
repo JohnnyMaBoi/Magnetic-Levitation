@@ -14,12 +14,8 @@
 unsigned long startMillis;  // some global variables available anywhere in the program
 unsigned long currentMillis;
 
-// filtering variables
-int prev_minmax_hall = 0;
-int minmax_hall = 0;
-int moving_avg_hall;
-
 // output variables
+int filtered_analog_reading;  //combination average and min-max filter output
 float distance_cm;
 float mT_out;
 
@@ -38,14 +34,11 @@ void setup() {
 }
 
 void loop() {
-    hall = analogRead(SENSOR_PIN);
-    
-    minmax_hall = minmax_filter(hall, prev_minmax_hall);
-    prev_minmax_hall = minmax_hall;
-    moving_avg_hall = moving_average_filter(minmax_hall);
-    
+    // take readings
+    filtered_analog_reading = get_filtered_analog_reading();
     mT_out = hall_mT(moving_avg_hall);
     distance_cm = mT_to_distance(mT_out);
+    currentMillis = millis()-startMillis;
 
     Serial.println(String(hall));
 

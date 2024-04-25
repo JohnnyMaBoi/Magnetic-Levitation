@@ -8,7 +8,6 @@ float temp_effect = 7.5 * (1 + (22 - 25) * .0012);  // assuming 22 deg celsius
 int hall_vcc = 5000;                                // running voltage of hall, 5v in mV
 float hall_vq = hall_vcc / 2;
 int magnet_falloff = 5;                             // max sensable distance of magnet
-int hall;  // analog output variable
 
 // Hall to Distance Lookups
 float distances[18] = { //closest to farthest
@@ -87,6 +86,19 @@ int minmax_filter(int new_val, int prev_val) {
     } else {
         return prev_val;
     }
+}
+
+int hall;                   // analog out
+int prev_minmax_hall = 0; 
+int minmax_hall = 0;
+int moving_avg_hall;
+
+int get_filtered_analog_reading() {
+    hall = analogRead(SENSOR_PIN);
+    minmax_hall = minmax_filter(hall, prev_minmax_hall);
+    prev_minmax_hall = minmax_hall;
+    moving_avg_hall = moving_average_filter(minmax_hall);
+    return moving_avg_hall;
 }
 
 // Initialize the moving average array (must be called during setup() function)
