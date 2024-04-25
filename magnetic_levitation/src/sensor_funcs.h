@@ -3,14 +3,27 @@
 #include "constants.h"
 
 // HALL CONVERSION AND GLOBAL VAR
-// %terms from datasheet page 10, sens from table
-// float Vq = 3.3/2;
-// float sensitivity_term = 7.5; // changes by device & voltage
-// float temp_effect = sensitivity_term*(1+(22-25)*.0012); // assuming 22 deg celsius
-float temp_effect = 7.5 * (1 + (22 - 25) * .0012);  // assuming 22 deg celsius
+// terms from datasheet page 10, sens from table
+float temp_effect = 7.5 * (1 + (22 - 25) * .0012);  // assuming 22 deg celsius 
 int hall_vcc = 5000;                                // running voltage of hall, 5v in mV
 float hall_vq = hall_vcc / 2;
+int magnet_falloff = 5;                             // max sensable distance of magnet
 int hall;  // analog output variable
+
+// Hall to Distance Lookups
+float distances[18] = { //closest to farthest
+0.190909092, 0.254545456, 0.31818182,
+0.381818184, 0.445454545, 0.509090912,
+0.572727276, 0.63636364, 0.700000004,
+1, 1.5, 2,
+2.5, 3,3.5,
+4, 4.5, 5
+};
+float mT[18] = { //closest to farthest, magnet-specific
+330, 275, 225, 190, 160, 138.5, 122,
+109.7, 83, 37.24, 18.3, 9.8, 5.88,
+3.27, 1.31, .65, 0, -.65,
+};
 
 // Convert from analog voltage (0-1023) to magnetic field strength in milli-Teslas
 float hall_mT(int hall_analog) {
@@ -19,6 +32,22 @@ float hall_mT(int hall_analog) {
     float hall_vout = (hall_analog / 1024.0) * 5000;
     float sensor_flux = (hall_vout - hall_vq) / (temp_effect);
     return sensor_flux;
+}
+
+float mT_to_distance(float mT_reading){
+    int i=0;
+    float distance;
+    while(mT_reading<mT[i]){
+        i++;
+    }
+    // mT[i]: lower-bound // mT[i-1]: upper-bound
+    float interp_ratio = (mT_reading-mT[i])/(mT[i-1]-mT[i]);
+    distance = distances[i]+((distances[i-1]-distances[i])*interp_ratio);
+    // bounds check
+    if (distance<magnet_falloff){
+        return distance;
+    }
+    return magnet_falloff;
 }
 
 // Perform moving average filter
@@ -69,18 +98,3 @@ void setup_moving_average_array() {
     }
 }
 
-int prev_minmax_hall = 0;
-int minmax_hall = 0;
-int moving_avg_hall;
-
-int get_filtered_analog_reading() {
-    hall = analogRead(SENSOR_PIN);
-    minmax_hall = minmax_filter(hall, prev_minmax_hall);
-    prev_minmax_hall = minmax_hall;
-    moving_avg_hall = moving_average_filter(minmax_hall);
-    return moving_avg_hall;
-}
-
-float get_filtered_hall_mT() {
-    return hall_mT(get_filtered_analog_reading());
-}
