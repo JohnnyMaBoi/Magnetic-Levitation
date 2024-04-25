@@ -1,5 +1,4 @@
-#include <Arduino.h>
-
+#pragma once
 #include "constants.h"
 
 // HALL CONVERSION AND GLOBAL VAR

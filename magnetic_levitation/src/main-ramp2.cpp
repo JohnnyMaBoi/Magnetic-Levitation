@@ -15,7 +15,21 @@ unsigned long startMillis;  // some global variables available anywhere in the p
 unsigned long currentMillis;
 int samples_per_interval = 10;
 
+// output variables
+int filtered_analog_reading;  //combination average and min-max filter output
+int corrected_analog_reading; // remove solenoid impact from hall analog
+float distance_cm;
+float mT_out;
+
+
 void print_all_values(int i) {
+    // take readings
+    filtered_analog_reading = get_filtered_analog_reading();
+    corrected_analog_reading = filtered_analog_reading - solenoid_hall_correction_analog;
+    mT_out = hall_mT(corrected_analog_reading);
+    distance_cm = mT_to_distance(mT_out);
+    currentMillis = millis()-startMillis;
+
     currentMillis = millis();
     Serial.print(">solenoid_value:");
     Serial.print(String(currentMillis) + ":");
@@ -27,7 +41,14 @@ void print_all_values(int i) {
 
     Serial.print(">filtered_hall_analog:");
     Serial.print(String(currentMillis) + ":");
-    Serial.println(get_filtered_analog_reading() - solenoid_hall_correction_analog);
+    // Serial.println(get_filtered_analog_reading() - solenoid_hall_correction_analog);
+    Serial.println(corrected_analog_reading);
+
+
+    Serial.print(">Distance:");
+    Serial.print(String(currentMillis) + ":");
+    Serial.println(distance_cm);
+
 }
 
 void setup() {
