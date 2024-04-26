@@ -1,12 +1,7 @@
 #pragma once
-#include "constants.h"
 
-enum PrintStatements { RAW_SENSOR_VALUE,
-                       FILTERED_SENSOR_VALUE,
-                       FILTERED_MT,
-                       FILTERED_DISTANCE,
-                       SOLENDOID_CORRECTION_ANALOG,
-                       SOLENOID_CORRECTION_MT };
+#include "constants.h"
+#include "print_statements.h"
 
 // HALL CONVERSION AND GLOBAL VAR
 // terms from datasheet page 10, sens from table
@@ -71,7 +66,7 @@ float mT_to_distance(float mT_reading) {
 }
 
 // Perform moving average filter
-const unsigned int moving_average_len = 3;
+const unsigned int moving_average_len = 20;
 int moving_average_array[moving_average_len];
 
 int moving_average_filter(int new_val) {
@@ -86,10 +81,11 @@ int moving_average_filter(int new_val) {
 
 // Perform min-max filter
 const unsigned int moving_minmax_len = 20;
-const float buffer_factor = -0.5;  // -0.5;
+float buffer_factor = 0;
 float moving_minmax_array[moving_minmax_len];
 
-int minmax_filter(int new_val, int prev_val) {
+int minmax_filter(int new_val) {
+    int prev_val = moving_minmax_array[0];
     int max_val = -10000;
     int min_val = 10000;
     for (unsigned int i = 0; i < moving_minmax_len - 1; i++) {
@@ -109,29 +105,46 @@ int minmax_filter(int new_val, int prev_val) {
     }
 }
 
-int hall;  // analog out
-int prev_minmax_hall = 0;
-int minmax_hall = 0;
-int moving_avg_hall;
-
 int get_raw_sensor_value() {
-    return analogRead(SENSOR_PIN);
+    int val = analogRead(SENSOR_PIN);
+    if (PRINT_RAW_SENSOR_VALUE) {
+        Serial.print(">analog value (1-1024) (raw):");
+        Serial.print(String(millis()) + ":");
+        Serial.println(val);
+    }
+    return val;
 }
 
 int get_filtered_analog_reading() {
-    hall = get_raw_sensor_value();
-    minmax_hall = minmax_filter(hall, prev_minmax_hall);
-    prev_minmax_hall = minmax_hall;
-    moving_avg_hall = moving_average_filter(minmax_hall);
-    return moving_avg_hall;
+    int raw_val = get_raw_sensor_value();
+    int minmax_val = minmax_filter(raw_val);
+    int filtered_val = moving_average_filter(minmax_val);
+    if (PRINT_FILTERED_SENSOR_VALUE) {
+        Serial.print(">analog value (1-1024) (filtered):");
+        Serial.print(String(millis()) + ":");
+        Serial.println(filtered_val);
+    }
+    return filtered_val;
 }
 
 float get_filtered_hall_effect_mT() {
-    return hall_mT(get_filtered_analog_reading());
+    float val = hall_mT(get_filtered_analog_reading());
+    if (PRINT_FILTERED_MT) {
+        Serial.print(">Hall mT (filtered):");
+        Serial.print(String(millis()) + ":");
+        Serial.println(val);
+    }
+    return val;
 }
 
 float get_filtered_distance_cm() {
-    return mT_to_distance(get_filtered_hall_effect_mT());
+    float val = mT_to_distance(get_filtered_hall_effect_mT());
+    if (PRINT_FILTERED_DISTANCE) {
+        Serial.print(">Distance cm (filtered):");
+        Serial.print(String(millis()) + ":");
+        Serial.println(val);
+    }
+    return val;
 }
 
 // Initialize the moving average array (must be called during setup() function)
@@ -141,34 +154,4 @@ void setup_moving_average_array() {
     for (unsigned int i = 0; i < moving_average_len; i++) {
         moving_average_array[i] = 0;
     }
-}
-
-///////////// FUNCTION OVERLOADING SECTION ////////////////////////
-// We will take all the functions which normally take x number of arguments and re-define them here to take x+1 arguments,
-// where the last argument is a boolean called "print".
-// When we call the function with this additional argument set to true, then it will print out the value in addition to calculating it.
-// When we call the function with the normal number of arguments, the default function is called as usual.
-///////////////////////////////////////////////////////////////////
-float get_filtered_hall_effect_mT(bool print) {
-    float val = get_filtered_hall_effect_mT();
-    Serial.print(">Hall mT (filtered):");
-    Serial.print(String(currentMillis) + ":");
-    Serial.println(val);
-    return val;
-}
-
-float get_filtered_distance_cm(bool print) {
-    float val = get_filtered_distance_cm();
-    Serial.print(">Distance cm (filtered):");
-    Serial.print(String(currentMillis) + ":");
-    Serial.println(val);
-    return val;
-}
-
-int get_filtered_analog_reading(bool print) {
-    int val = get_filtered_analog_reading();
-    Serial.print(">Analog sensor 0-1024 (filtered):");
-    Serial.print(String(currentMillis) + ":");
-    Serial.println(val);
-    return val;
 }
