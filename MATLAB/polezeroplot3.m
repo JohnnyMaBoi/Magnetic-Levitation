@@ -6,8 +6,8 @@ Tdelay = 10e-3 % s
 Fm0 = 7.01e-02; % N / A
 
 Kp = 1; % parameter to vary
-Kd = 1 ./ 60;
-
+Kd = 1 ./ 20;
+0
 C_s = tf([Kd, Kp], [1]);
 G_s = tf([Fm0], [m, b, -a]);
 Delay_s = tf([Tdelay .^ 2 ./ 12, -Tdelay ./ 2, 1], ...
@@ -27,7 +27,7 @@ rlocus(G_s, G2_s)
 figure(3);
 clf;
 rlocus(G3_s)
-
-figure(4);
-clf;
-rlocus(G_s, G2_s, G3_s)
+% 
+% figure(4);
+% clf;
+% rlocus(G_s, G2_s, G3_s)
