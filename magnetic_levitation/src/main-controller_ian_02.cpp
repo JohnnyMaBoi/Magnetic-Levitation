@@ -11,13 +11,17 @@ unsigned long currentMillis;
 
 int between(int lower, int upper, int val);
 
-float steady_state_distance = 10;       // millimeters
-int steady_state_solenoid_write = 150;  // pwm units
+float steady_state_distance = 8.6;      // millimeters
+int steady_state_solenoid_write = 200;  // pwm units
+
+// good lists:
+// (Kp, Kd, moving average data points)
+// (30, 1, 20)
 
 // float Kp = 30;
 // float Kd = Kd / 30;
-float Kp = 20;
-float Kd = 0.2;
+float Kp = 50;
+float Kd = 1.5;
 unsigned long last_controller_millis = 0;
 float prev_distance_mm = 0;
 
@@ -26,7 +30,7 @@ int controller(float distance_mm) {
     unsigned long dt_milliseconds = current_millis - last_controller_millis;
     last_controller_millis = current_millis;
     float dhalldt_mm_per_s = float(distance_mm - prev_distance_mm) / float(dt_milliseconds * MILLISECONDS_TO_SECONDS);
-    int controller_val = between(50, 250, int(Kd * dhalldt_mm_per_s) + int(Kp * (distance_mm - steady_state_distance)) + steady_state_solenoid_write);
+    int controller_val = between(20, 250, int(Kd * dhalldt_mm_per_s) + int(Kp * (distance_mm - steady_state_distance)) + steady_state_solenoid_write);
     prev_distance_mm = distance_mm;
 
     if (PRINT_CONTROLLER_VAL) {
@@ -54,7 +58,9 @@ void setup() {
     startMillis = millis();  // initial start time
 
     // setup print statements
-    turn_all_prints_on();
+    // turn_all_prints_on();
+    turn_all_prints_off();
+    PRINT_CONTROLLER_VAL = true;
 }
 
 void loop() {
