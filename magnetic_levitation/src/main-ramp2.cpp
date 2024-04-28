@@ -22,35 +22,6 @@ float distance_cm;
 float mT_out;
 
 
-void print_all_values(int i) {
-    // take readings
-    filtered_analog_reading = get_filtered_analog_reading();
-    corrected_analog_reading = filtered_analog_reading - solenoid_hall_correction_analog;
-    mT_out = hall_mT(corrected_analog_reading);
-    distance_cm = mT_to_distance(mT_out);
-    currentMillis = millis()-startMillis;
-
-    currentMillis = millis();
-    Serial.print(">solenoid_value:");
-    Serial.print(String(currentMillis) + ":");
-    Serial.println(i / samples_per_interval);
-
-    Serial.print(">raw_hall_analog:");
-    Serial.print(String(currentMillis) + ":");
-    Serial.println(analogRead(SENSOR_PIN) - 509);
-
-    Serial.print(">filtered_hall_analog:");
-    Serial.print(String(currentMillis) + ":");
-    // Serial.println(get_filtered_analog_reading() - solenoid_hall_correction_analog);
-    Serial.println(corrected_analog_reading);
-
-
-    Serial.print(">Distance:");
-    Serial.print(String(currentMillis) + ":");
-    Serial.println(distance_cm);
-
-}
-
 void setup() {
     Serial.begin(115200);
 
@@ -59,6 +30,10 @@ void setup() {
     Serial.println("");
     Serial.println("Analog Write Value, Sensor Reading");
     setup_solenoid();
+    
+    PRINT_FILTERED_DISTANCE = true;
+    PRINT_FILTERED_MT = true;
+    PRINT_RAW_SENSOR_VALUE = true;
 }
 
 void loop() {
@@ -66,12 +41,12 @@ void loop() {
     digitalWrite(MOTOR_IN2, LOW);
     for (int i = 0; i < 255 * samples_per_interval; i++) {
         write_solenoid(i / samples_per_interval);
-        print_all_values(i);
+        get_filtered_distance_cm();
     }
 
     // ramp down backward
     for (int i = 255 * samples_per_interval; i >= 0; i--) {
         write_solenoid(i / samples_per_interval);
-        print_all_values(i);
+        get_filtered_distance_cm();
     }
 }

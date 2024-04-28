@@ -41,7 +41,7 @@ int solenoid_correction_func(int solenoid_write_value) {
     int correction_factor = linear_interp(solenoid_write_value, solenoid_correction_solenoid_write_data_points, solenoid_correction_sensor_read_data_points, n_solenoid_correction_data_points);
     // print values
     if (PRINT_SOLENOID_CORRECTION_FACTOR) {
-        Serial.print(">analog value (1-1024) (raw):");
+        Serial.print(">solenoid correction (units analog):");
         Serial.print(String(millis()) + ":");
         Serial.println(correction_factor);
     }
@@ -62,7 +62,7 @@ int get_sensor_value_with_solenoid_subtracted() {
     int solenoid_hall_correction_analog = solenoid_correction_func(most_recent_solenoid_write);
     int val = get_raw_sensor_value() - solenoid_hall_correction_analog;
     if (PRINT_CORRECTED_SENSOR_VALUE) {
-        Serial.print(">analog value (1-1024) (corrected, unfiltered):");
+        Serial.print(">Hall w solenoid correction (1-1024):");
         Serial.print(String(millis()) + ":");
         Serial.println(val);
     }
