@@ -39,15 +39,15 @@ void setup() {
 void loop() {
     // ramp up backward
     digitalWrite(MOTOR_IN2, LOW);
-    for (int i = 150; i < 255; i += 10) {
+    for (int i = 0; i < 255; i += 20) {
         write_solenoid(i);
         Serial.print("Solenoid value:");
         Serial.println(i);
-        delay(10 * SECONDS);
+        delay(5 * SECONDS);
     }
 
     // ramp down backward
-    for (int i = 250; i > 145; i -= 10) {
+    for (int i = 250; i > 0; i -= 20) {
         write_solenoid(i);
         Serial.print("Solenoid value:");
         Serial.println(i);
