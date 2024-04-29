@@ -29,10 +29,7 @@ float mT_to_distance(float mT_reading) {
     float distance = linear_interp(mT_reading, mT_to_distance_conversion_mT, mT_to_distance_conversion_distances, n_mT_to_distance_conversion_data_points);
 
     // bounds check
-    if (distance < magnet_falloff) {
-        return distance;
-    }
-    return magnet_falloff;
+    return distance;
 }
 
 // Takes in the most recent solenoid write value and tries to estimate what the effect of the solenoid will be,
@@ -43,7 +40,7 @@ int solenoid_correction_func(int solenoid_write_value) {
     int correction_factor = 0;
     if (solenoid_write_value >= 155) {
         correction_factor = 0.5806 * solenoid_write_value + 432;
-    } else if ((solenoid_write_value > 50) && (solenoid_write_value < 150)) {
+    } else if ((solenoid_write_value < 155)) { // && (solenoid_write_value > 50)  
         correction_factor = 0.0952 * solenoid_write_value + 505;
     }
     // print values
@@ -59,7 +56,7 @@ int solenoid_correction_func(int solenoid_write_value) {
 int get_raw_sensor_value() {
     int val = analogRead(SENSOR_PIN);
     if (PRINT_RAW_SENSOR_VALUE) {
-        Serial.print(">analog value (1-1024) (raw):");
+        Serial.print(">Hall analog (raw):");
         Serial.print(String(millis()) + ":");
         Serial.println(val);
     }
@@ -93,7 +90,7 @@ int get_filtered_analog_reading(bool apply_moving_average) {
         filtered_val = minmax_val;
     }
     if (PRINT_FILTERED_SENSOR_VALUE) {
-        Serial.print(">analog value (1-1024) (filtered)");
+        Serial.print(">Hall analog (1-1024 filtered)");
         if (apply_moving_average) {
             Serial.print(":");
         } else {
