@@ -71,43 +71,69 @@ int get_sensor_value_with_solenoid_subtracted() {
     return val;
 }
 
-int get_filtered_analog_reading() {
+int get_filtered_analog_reading(bool apply_moving_average) {
     int raw_val = get_sensor_value_with_solenoid_subtracted();
     int minmax_val = minmax_filter(raw_val);
-    int filtered_val = moving_average_filter(minmax_val);
+    int filtered_val = 0;
+    // add the option to skip the moving average filter step
+    if (apply_moving_average) {
+        filtered_val = moving_average_filter(minmax_val);
+    } else {
+        filtered_val = minmax_val;
+    }
     if (PRINT_FILTERED_SENSOR_VALUE) {
-        Serial.print(">analog value (1-1024) (filtered):");
+        Serial.print(">analog value (1-1024) (filtered)");
+        if (apply_moving_average) {
+            Serial.print(":");
+        } else {
+            Serial.print(" (no mov.avg.):");
+        }
         Serial.print(String(millis()) + ":");
         Serial.println(filtered_val);
     }
     return filtered_val;
 }
 
-float get_filtered_hall_effect_mT() {
-    float val = hall_mT(get_filtered_analog_reading());
+float get_filtered_hall_effect_mT(bool apply_moving_average) {
+    float val = hall_mT(get_filtered_analog_reading(apply_moving_average));
     if (PRINT_FILTERED_MT) {
-        Serial.print(">Hall mT (filtered):");
+        Serial.print(">Hall mT (filtered)");
+        if (apply_moving_average) {
+            Serial.print(":");
+        } else {
+            Serial.print(" (no mov.avg.):");
+        }
         Serial.print(String(millis()) + ":");
         Serial.println(val);
     }
     return val;
+}
+
+float get_filtered_distance_cm(bool apply_moving_average) {
+    float val = mT_to_distance(get_filtered_hall_effect_mT(apply_moving_average));
+    if (PRINT_FILTERED_DISTANCE) {
+        Serial.print(">Distance cm (filtered)");
+        if (apply_moving_average) {
+            Serial.print(":");
+        } else {
+            Serial.print(" (no mov.avg.):");
+        }
+        Serial.print(String(millis()) + ":");
+        Serial.println(val);
+    }
+    return val;
+}
+
+// Below, we defined aliases for the same functions but with no arguments,
+// such that when no arguments are supplied, the default is true: do apply the moving average filter.
+int get_filtered_analog_reading() {
+    return get_filtered_analog_reading(true);
+}
+
+float get_filtered_hall_effect_mT() {
+    return get_filtered_hall_effect_mT(true);
 }
 
 float get_filtered_distance_cm() {
-    float val = mT_to_distance(get_filtered_hall_effect_mT());
-    if (PRINT_FILTERED_DISTANCE) {
-        Serial.print(">Distance cm (filtered):");
-        Serial.print(String(millis()) + ":");
-        Serial.println(val);
-    }
-    return val;
-}
-
-// Initialize the moving average array (must be called during setup() function)
-void setup_moving_average_array() {
-    pinMode(SENSOR_PIN, INPUT);
-    // initialize moving average array to all zeros
-    for (unsigned int i = 0; i < moving_average_len; i++) {
-        moving_average_array[i] = 0;
-    }
+    return get_filtered_distance_cm(true);
 }
