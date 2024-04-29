@@ -13,6 +13,7 @@
 // timing values
 unsigned long startMillis;  // some global variables available anywhere in the program
 unsigned long currentMillis;
+unsigned long sample_time = 1000;      // time for each sample in ms
 int samples_per_interval = 10;
 
 // output variables
@@ -29,11 +30,12 @@ void setup() {
     Serial.println("");
     Serial.println("Analog Write Value, Sensor Reading");
     setup_solenoid();
-
+    turn_all_prints_off();
     turn_all_prints_on();
     // PRINT_FILTERED_DISTANCE = true;
     // PRINT_FILTERED_MT = true;
-    // PRINT_RAW_SENSOR_VALUE = true;
+    PRINT_RAW_SENSOR_VALUE = true;
+    // PRINT_FILTERED_SENSOR_VALUE = true;
 }
 
 void loop() {
@@ -41,26 +43,28 @@ void loop() {
     digitalWrite(MOTOR_IN2, LOW);
     for (int i = 0; i < 255 * samples_per_interval; i++) {
         write_solenoid(i / samples_per_interval);
-        Serial.print(">solenoid_commanded:");
-        Serial.print(String(millis()) + ":");
-        Serial.println(i / samples_per_interval);
-
-        get_filtered_distance_cm();
-        Serial.print(">Solenoid value (0-255):");
-        Serial.print(String(millis()) + ":");
-        Serial.println(i / samples_per_interval);
+        startMillis = millis();
+        currentMillis = millis();
+        while((startMillis - currentMillis)<sample_time){
+            currentMillis = millis();
+            get_filtered_distance_cm();
+            Serial.print(">Solenoid value (0-255):");
+            Serial.print(String(millis()) + ":");
+            Serial.println(i / samples_per_interval);
+        }
     }
 
     // ramp down backward
     for (int i = 255 * samples_per_interval; i >= 0; i--) {
         write_solenoid(i / samples_per_interval);
-        Serial.print(">solenoid_commanded:");
-        Serial.print(String(millis()) + ":");
-        Serial.println(i / samples_per_interval);
-
-        get_filtered_distance_cm();
-        Serial.print(">Solenoid value (0-255):");
-        Serial.print(String(millis()) + ":");
-        Serial.println(i / samples_per_interval);
+        startMillis = millis();
+        currentMillis = millis();
+        while((startMillis - currentMillis)<sample_time){
+            currentMillis = millis();
+            get_filtered_distance_cm();
+            Serial.print(">Solenoid value (0-255):");
+            Serial.print(String(millis()) + ":");
+            Serial.println(i / samples_per_interval);
+        }
     }
 }
