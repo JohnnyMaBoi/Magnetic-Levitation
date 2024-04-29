@@ -31,9 +31,10 @@ void setup() {
     Serial.println("Analog Write Value, Sensor Reading");
     setup_solenoid();
     
-    PRINT_FILTERED_DISTANCE = true;
-    PRINT_FILTERED_MT = true;
+    // PRINT_FILTERED_DISTANCE = true;
+    // PRINT_FILTERED_MT = true;
     PRINT_RAW_SENSOR_VALUE = true;
+
 }
 
 void loop() {
@@ -41,12 +42,20 @@ void loop() {
     digitalWrite(MOTOR_IN2, LOW);
     for (int i = 0; i < 255 * samples_per_interval; i++) {
         write_solenoid(i / samples_per_interval);
+        Serial.print(">solenoid_commanded:");
+        Serial.print(String(millis()) + ":");
+        Serial.println(i / samples_per_interval);
+
         get_filtered_distance_cm();
     }
 
     // ramp down backward
     for (int i = 255 * samples_per_interval; i >= 0; i--) {
         write_solenoid(i / samples_per_interval);
+        Serial.print(">solenoid_commanded:");
+        Serial.print(String(millis()) + ":");
+        Serial.println(i / samples_per_interval);
+
         get_filtered_distance_cm();
     }
 }
