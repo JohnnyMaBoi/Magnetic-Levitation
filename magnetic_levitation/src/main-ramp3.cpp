@@ -39,7 +39,7 @@ void setup() {
 void loop() {
     // ramp up backward
     digitalWrite(MOTOR_IN2, LOW);
-    for (int i = 0; i < 255 * samples_per_interval; i++) {
+    for (int i = 150 * samples_per_interval; i < 255 * samples_per_interval; i++) {
         write_solenoid(i / samples_per_interval);
         get_filtered_distance_cm();
         Serial.print(">Solenoid value (0-255):");
@@ -48,7 +48,7 @@ void loop() {
     }
 
     // ramp down backward
-    for (int i = 255 * samples_per_interval; i >= 0; i--) {
+    for (int i = 255 * samples_per_interval; i >= 150 * samples_per_interval; i--) {
         write_solenoid(i / samples_per_interval);
         get_filtered_distance_cm();
         Serial.print(">Solenoid value (0-255):");
