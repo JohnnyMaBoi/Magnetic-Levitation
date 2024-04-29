@@ -2,7 +2,7 @@
 #include <Arduino.h>
 
 // Perform moving average filter
-const unsigned int moving_average_len = 40;
+const unsigned int moving_average_len = 10;
 int moving_average_array[moving_average_len];
 
 int moving_average_filter(int new_val) {
@@ -16,7 +16,7 @@ int moving_average_filter(int new_val) {
 }
 
 // Perform min-max filter
-const unsigned int moving_minmax_len = 20;
+const unsigned int moving_minmax_len = 50;
 float buffer_factor = 0;
 float moving_minmax_array[moving_minmax_len];
 
@@ -38,5 +38,14 @@ int minmax_filter(int new_val) {
         return (max_val + min_val) / 2;
     } else {
         return prev_val;
+    }
+}
+
+// Initialize the moving average array (must be called during setup() function)
+void setup_moving_average_array() {
+    pinMode(SENSOR_PIN, INPUT);
+    // initialize moving average array to all zeros
+    for (unsigned int i = 0; i < moving_average_len; i++) {
+        moving_average_array[i] = 0;
     }
 }

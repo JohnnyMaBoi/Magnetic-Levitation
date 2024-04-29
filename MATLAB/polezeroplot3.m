@@ -1,5 +1,5 @@
 b = 1.04e-2; % N * s / mm
-m = 6.00e-3; % g
+m = 8.00e-3; % kg
 a = 4.06e-0; % N / mm
 Tdelay = 10e-3 % s
 
