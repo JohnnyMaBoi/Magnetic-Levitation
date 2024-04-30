@@ -30,11 +30,12 @@ void setup() {
     Serial.println("");
     Serial.println("Analog Write Value, Sensor Reading");
     setup_solenoid();
+    // turn_all_prints_on();
     turn_all_prints_off();
-    turn_all_prints_on();
     // PRINT_FILTERED_DISTANCE = true;
     // PRINT_FILTERED_MT = true;
     PRINT_RAW_SENSOR_VALUE = true;
+    PRINT_FILTERED_MT = true; 
     // PRINT_FILTERED_SENSOR_VALUE = true;
 }
 

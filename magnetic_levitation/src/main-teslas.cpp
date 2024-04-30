@@ -30,32 +30,14 @@ void setup() {
     pinMode(SENSOR_PIN, INPUT);
     analogWrite(MOTOR_IN1, LOW);
     analogWrite(MOTOR_IN2, 200);
+    setup_solenoid();
+    turn_all_prints_on();
     startMillis = millis();  // initial start time
 }
 
 void loop() {
     // take readings
     filtered_analog_reading = get_filtered_analog_reading();
-    mT_out = hall_mT(moving_avg_hall);
-    distance_cm = mT_to_distance(mT_out);
-    currentMillis = millis()-startMillis;
-
-    Serial.println(String(hall));
-
-    Serial.print(">hall_mT:");
-    Serial.print(String(currentMillis) + ":");
-    Serial.println(mT_out);
-
-    // Serial.print(">hall_minmax_filtered:");
-    // Serial.print(String(currentMillis) + ":");
-    // Serial.println(minmax_hall);
-
-    Serial.print(">hall_average_filtered:");
-    Serial.print(String(currentMillis) + ":");
-    Serial.println(moving_avg_hall);
-
-    Serial.print(">hall_distance:");
-    Serial.print(String(currentMillis) + ":");
-    Serial.println(distance_cm);
+    
 
 }
