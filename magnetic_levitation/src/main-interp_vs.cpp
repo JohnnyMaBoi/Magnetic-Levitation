@@ -35,32 +35,18 @@ void setup() {
     PRINT_FILTERED_MT = true; 
     // PRINT_FILTERED_SENSOR_VALUE = true;
 }
-// defining loop variables
-int raw_val; // hall analog reading
-int filtered_val; // filtered analog reading
+// defining equation hall correction variables
 float eq_solenoid_correction; // calculated solenoid correction from best fit
-float interp_solenoid_correction; // interp solenoid correction datapoints
-unsigned int end_timer; 
-unsigned int start_timer;
 float eq_solenoid;
-float interp_solenoid;
 float eq_mT;
-float interp_mT;
 float eq_distance;
-float interp_distance;
 
-int get_filtered_analog_reading(bool apply_moving_average) {
+int get_eq_values() {
     start_timer = millis();
-    raw_val = get_raw_sensor_value();
-    filtered_val = apply_filter(raw_val, apply_moving_average);   
     eq_solenoid_correction = solenoid_correction_linear();
-    interp_solenoid_correction = solenoid_correction_interp();
     eq_solenoid = filtered_val-eq_solenoid_correction;
-    interp_solenoid = filtered_val-interp_solenoid_correction;
     eq_mT = hall_mT(eq_solenoid);
-    interp_mT = hall_mT(interp_solenoid);
     eq_distance = mT_to_distance(eq_mT);
-    interp_distance = mT_to_distance(interp_mT);
     end_timer = millis();
 
     // make sure to change labels when you switch out testing values
@@ -85,6 +71,7 @@ void loop() {
         while((startMillis - currentMillis)<sample_time){
             currentMillis = millis();
             get_filtered_analog_reading(true);
+            get_eq_values();
             Serial.print(">Solenoid value (0-255):");
             Serial.print(String(millis()) + ":");
             Serial.println(i / samples_per_interval);
