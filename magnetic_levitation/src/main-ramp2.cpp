@@ -16,11 +16,8 @@ unsigned long currentMillis;
 unsigned long sample_time = 1000;      // time for each sample in ms
 int samples_per_interval = 10;
 
-// output variables
-int filtered_analog_reading;   // combination average and min-max filter output
-int corrected_analog_reading;  // remove solenoid impact from hall analog
-float distance_cm;
-float mT_out;
+
+
 
 void setup() {
     Serial.begin(115200);
@@ -34,10 +31,37 @@ void setup() {
     turn_all_prints_off();
     // PRINT_FILTERED_DISTANCE = true;
     // PRINT_FILTERED_MT = true;
-    PRINT_RAW_SENSOR_VALUE = true;
-    PRINT_FILTERED_MT = true; 
+    // PRINT_RAW_SENSOR_VALUE = true;
+    // PRINT_FILTERED_MT = true; 
     // PRINT_FILTERED_SENSOR_VALUE = true;
 }
+// defining loop variables
+int raw_val; // hall analog reading
+int filtered_val; // filtered analog reading
+float eq_solenoid_correction; // calculated solenoid correction from best fit
+float interp_solenoid_correction; // interp solenoid correction datapoints
+unsigned int end_timer; 
+unsigned int start_timer;
+float eq_solenoid;
+float interp_solenoid;
+float eq_mT;
+float interp_mT;
+float eq_distance;
+float interp_distance;
+
+int get_filtered_analog_reading(bool apply_moving_average) {
+    start_timer = millis();     // move around to time loop elements
+    raw_val = get_raw_sensor_value();
+    filtered_val = apply_filter(raw_val, apply_moving_average);   
+    interp_solenoid_correction = solenoid_correction_interp();
+    interp_solenoid = filtered_val-interp_solenoid_correction;
+    interp_mT = hall_mT(interp_solenoid);
+    interp_distance = mT_to_distance(interp_mT);
+    end_timer = millis();
+    Serial.print(">loop time:"+String(end_timer) + ":");
+    Serial.println(end_timer-start_timer);
+}
+
 
 void loop() {
     // ramp up backward
@@ -48,10 +72,10 @@ void loop() {
         currentMillis = millis();
         while((startMillis - currentMillis)<sample_time){
             currentMillis = millis();
-            get_filtered_distance_cm();
-            Serial.print(">Solenoid value (0-255):");
-            Serial.print(String(millis()) + ":");
-            Serial.println(i / samples_per_interval);
+            get_filtered_analog_reading(true);
+            // Serial.print(">Solenoid value (0-255):");
+            // Serial.print(String(loop_timer) + ":");
+            // Serial.println(i / samples_per_interval);
         }
     }
 
@@ -62,10 +86,10 @@ void loop() {
         currentMillis = millis();
         while((startMillis - currentMillis)<sample_time){
             currentMillis = millis();
-            get_filtered_distance_cm();
-            Serial.print(">Solenoid value (0-255):");
-            Serial.print(String(millis()) + ":");
-            Serial.println(i / samples_per_interval);
+            get_filtered_analog_reading(true);
+            // Serial.print(">Solenoid value (0-255):");
+            // Serial.print(String(loop_timer) + ":");
+            // Serial.println(i / samples_per_interval);
         }
     }
 }
