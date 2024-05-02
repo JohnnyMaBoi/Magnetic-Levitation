@@ -12,7 +12,7 @@ unsigned long currentMillis;
 int between(int lower, int upper, int val);
 
 unsigned long last_controller_millis = 0;
-float prev_distance_mm = 0;
+float prev_analog_reading = 0;
 
 // good lists:
 // (Kp, Kd, moving average data points, steady_state_distance, steady_state_solenoid)
@@ -26,19 +26,19 @@ float prev_distance_mm = 0;
 // float Kp = 160;
 // float Kd = 0.1;
 
-float steady_state_distance = 18;       // millimeters
-int steady_state_solenoid_write = 200;  // pwm units
-float Kp = 0.16 * 10;
-float Kd = 0.006 * 10;
+float steady_state_analog_reading = 520;  // millimeters
+int steady_state_solenoid_write = 200;    // pwm units
+float Kp = 0.5 * 100;
+float Kd = 0.002 * 10;
 
-int controller(float distance_mm_for_p, float distance_mm_for_d) {
+int controller(int analog_reading) {
     unsigned long current_millis = millis();
     unsigned long dt_milliseconds = current_millis - last_controller_millis;
     last_controller_millis = current_millis;
-    float dhalldt_mm_per_s = float(distance_mm_for_d - prev_distance_mm) / float(dt_milliseconds * MILLISECONDS_TO_SECONDS);
-    int controller_val = between(150, 250, int(Kd * dhalldt_mm_per_s) + int(Kp * (distance_mm_for_p - steady_state_distance)) + steady_state_solenoid_write);
+    float dhalldt_mm_per_s = float(analog_reading - prev_analog_reading) / float(dt_milliseconds * MILLISECONDS_TO_SECONDS);
+    int controller_val = between(150, 250, int(-Kd * dhalldt_mm_per_s) + int(-Kp * (analog_reading - steady_state_analog_reading)) + steady_state_solenoid_write);
     // int controller_val = between(150, 250, int(Kd * dhalldt_mm_per_s) + steady_state_solenoid_write);
-    prev_distance_mm = distance_mm_for_d;
+    prev_analog_reading = analog_reading;
 
     if (PRINT_CONTROLLER_VAL) {
         Serial.print(">Controller value (0-255):");
@@ -65,10 +65,10 @@ void setup() {
     startMillis = millis();  // initial start time
 
     // setup print statements
-    turn_all_prints_on();
-    // turn_all_prints_off();
-    PRINT_CONTROLLER_VAL = true;
-    PRINT_FILTERED_DISTANCE = true;
+    // turn_all_prints_on();
+    turn_all_prints_off();
+    // PRINT_CONTROLLER_VAL = true;
+    // PRINT_FILTERED_DISTANCE = true;
     // PRINT_FILTERED_SENSOR_VALUE = true;
 }
 
@@ -76,8 +76,8 @@ void loop() {
     // Serial.print("Loop time (ms): ");
     // unsigned long loop_start_time = millis();
     // float distance_mm_for_p = get_filtered_distance_cm(false) * 10.0;
-    float distance_mm_for_d = get_filtered_distance_cm(true) * 10.0;
-    int controller_val = controller(distance_mm_for_d, distance_mm_for_d);
+    int analog_reading_filtered = get_filtered_analog_reading(true);
+    int controller_val = controller(analog_reading_filtered);
     write_solenoid(controller_val);
     // unsigned long loop_end_time = millis();
     // Serial.print(loop_start_time);

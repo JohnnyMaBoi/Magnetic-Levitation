@@ -41,7 +41,7 @@ int solenoid_correction_func(int solenoid_write_value) {
     // int correction_factor = linear_interp(solenoid_write_value, solenoid_correction_solenoid_write_data_points, solenoid_correction_sensor_read_data_points, n_solenoid_correction_data_points);
     // only valid between 150 and 255
     int correction_factor = 0;
-    if (solenoid_write_value >= 155) {
+    if (solenoid_write_value >= 150) {
         correction_factor = 0.5806 * solenoid_write_value + 432;
     } else if ((solenoid_write_value > 50) && (solenoid_write_value < 150)) {
         correction_factor = 0.0952 * solenoid_write_value + 505;
