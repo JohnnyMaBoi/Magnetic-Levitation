@@ -23,8 +23,7 @@ void updateTimers() {
 
 int between(int lower, int upper, int val) {
     if (val < lower) {
-        return 0;
-        // return lower;
+        return lower;
     }
     if (val > upper) {
         return upper;
@@ -44,10 +43,10 @@ int between(int lower, int upper, int val) {
 // float Kd = 1.5;
 
 // setpoint
-int steady_state_analog_read = 135;     // with fork, 110 without
+int steady_state_analog_read = 110;     // with fork, 110 without
 int steady_state_solenoid_write = 200;  // pwm units
-float Kp = 4;
-float Kd = 0.1;
+float Kp = 2.9;
+float Kd = 0.09;
 int controller_val;  // val to be written to solenoid
 
 void controller() {
@@ -76,13 +75,13 @@ void setup() {
 }
 
 void turn_on_specific_print_statements() {
-    PRINT_CONTROLLER_VAL = true;
-    PRINT_FILTERED_SENSOR_VALUE = true;
+    // PRINT_CONTROLLER_VAL = true;
+    // PRINT_FILTERED_SENSOR_VALUE = true;
     // PRINT_LOOPTIME = true;
     // PRINT_RAW_SENSOR_VALUE = true;
 }
 
-#define N_LOOP_CYCLES_BEFORE_PRINT 100
+#define N_LOOP_CYCLES_BEFORE_PRINT 1000
 void loop() {
     for (int loop_cycle = 0; loop_cycle < N_LOOP_CYCLES_BEFORE_PRINT; loop_cycle++) {
         get_filtered_analog_reading(true);

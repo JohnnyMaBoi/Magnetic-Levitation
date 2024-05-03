@@ -2,7 +2,7 @@
 #include <Arduino.h>
 
 // Perform moving average filter
-const unsigned int moving_average_len = 3;
+const unsigned int moving_average_len = 5;
 int moving_average_array[moving_average_len];
 
 int moving_average_filter(int new_val) {
