@@ -16,9 +16,10 @@ int moving_average_filter(int new_val) {
 }
 
 // Perform min-max filter
-const unsigned int moving_minmax_len = 50;
+const unsigned int moving_minmax_len = 20;
 float buffer_factor = 0;
 float moving_minmax_array[moving_minmax_len];
+int prev_minmax_val = 0;
 
 int minmax_filter(int new_val) {
     int prev_val = moving_minmax_array[0];
@@ -33,11 +34,15 @@ int minmax_filter(int new_val) {
     int max_val_overall = max_val + minmax_diff * buffer_factor;
     int min_val_overall = min_val - minmax_diff * buffer_factor;
 
+    Serial.println(">min_val_overall:"+String(millis())+":"+min_val_overall);
+    Serial.println(">max_val_overall:"+String(millis())+":"+max_val_overall);
+
     moving_minmax_array[0] = new_val;
     if ((new_val > max_val_overall) || (new_val < min_val_overall)) {
+        prev_minmax_val = (max_val + min_val) / 2;
         return (max_val + min_val) / 2;
     } else {
-        return prev_val;
+        return prev_minmax_val;
     }
 }
 
