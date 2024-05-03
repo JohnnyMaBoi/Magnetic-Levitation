@@ -14,9 +14,9 @@ int linear_interp(int x_val, int* x_data, int* y_data, unsigned int n_data_point
         }
     }
     if (idx == 0) {  // return the lowest value in the range
-        return x_data[0];
+        return y_data[0];
     } else if (idx == n_data_points - 1) {  // return the highest value in the range
-        return x_data[n_data_points - 1];
+        return y_data[n_data_points - 1];
     } else {  // compute the linear interpolation
         return int(((float(x_val - x_data[idx - 1]) / float(x_data[idx] - x_data[idx - 1])) * float(y_data[idx] - y_data[idx - 1])) + y_data[idx - 1]);
     }
