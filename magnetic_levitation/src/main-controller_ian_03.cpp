@@ -103,7 +103,7 @@ void loop() {
 
 void adc_setup() {
     // cli();
-    ADCSRA = 0b11110000;
+    ADCSRA = 0b11110100;
     ADCSRB = 0b00000000;
     ADMUX = 0b01100000;
     // sei();
