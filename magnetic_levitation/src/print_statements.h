@@ -9,8 +9,9 @@ bool PRINT_FILTERED_DISTANCE = false;
 bool PRINT_SOLENDOID_CORRECTION_ANALOG = false;
 bool PRINT_SOLENOID_CORRECTION_MT = false;
 bool PRINT_CONTROLLER_VAL = false;
+bool PRINT_LOOPTIME = false;
 bool PRINT_CORRECTED_SENSOR_VALUE = false;
-bool PRINT_SOLENOID_CORRECTION_FACTOR = false;
+bool PRINT_SOLENOID_CORRECTION_LINEAR = false;
 
 // Call this function during setup to turn on all print statemetns
 void turn_all_prints_on() {
@@ -22,7 +23,7 @@ void turn_all_prints_on() {
     PRINT_SOLENOID_CORRECTION_MT = true;
     PRINT_CONTROLLER_VAL = true;
     PRINT_CORRECTED_SENSOR_VALUE = true;
-    PRINT_SOLENOID_CORRECTION_FACTOR = true;
+    PRINT_SOLENOID_CORRECTION_LINEAR = true;
 }
 
 // Call this function during setup to turn off all print statemetns
@@ -35,5 +36,5 @@ void turn_all_prints_off() {
     PRINT_SOLENOID_CORRECTION_MT = false;
     PRINT_CONTROLLER_VAL = false;
     PRINT_CORRECTED_SENSOR_VALUE = false;
-    PRINT_SOLENOID_CORRECTION_FACTOR = false;
+    PRINT_SOLENOID_CORRECTION_LINEAR = false;
 }

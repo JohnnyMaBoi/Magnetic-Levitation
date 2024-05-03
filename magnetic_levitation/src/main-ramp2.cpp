@@ -13,8 +13,9 @@
 // timing values
 unsigned long startMillis;  // some global variables available anywhere in the program
 unsigned long currentMillis;
-unsigned long sample_time = 1000;      // time for each sample in ms
-int samples_per_interval = 10;
+unsigned long sample_time = 150;      // time for each sample in ms
+unsigned long off_time = 500;
+int samples_per_interval = 20;
 
 
 
@@ -41,30 +42,28 @@ void setup() {
 void loop() {
     // ramp up backward
     digitalWrite(MOTOR_IN2, LOW);
-    for (int i = 0; i < 255 * samples_per_interval; i++) {
-        write_solenoid(i / samples_per_interval);
-        startMillis = millis();
+    write_solenoid(150);
+    startMillis = millis();
+    currentMillis = millis();
+    while((currentMillis - startMillis)<off_time){
         currentMillis = millis();
-        while((startMillis - currentMillis)<sample_time){
-            currentMillis = millis();
-            get_filtered_analog_reading(true);
-            // Serial.print(">Solenoid value (0-255):");
-            // Serial.print(String(loop_timer) + ":");
-            // Serial.println(i / samples_per_interval);
-        }
+        get_filtered_analog_reading(false);
+        Serial.println(">raw val:"+String(millis())+":"+raw_val);
+        Serial.println(">filtered val:"+String(millis())+":"+filtered_val);
+        // Serial.println(i / samples_per_interval);
     }
 
-    // ramp down backward
-    for (int i = 255 * samples_per_interval; i >= 0; i--) {
-        write_solenoid(i / samples_per_interval);
-        startMillis = millis();
+    write_solenoid(255);
+    startMillis = millis();
+    currentMillis = millis();
+    while((currentMillis - startMillis)<sample_time){
         currentMillis = millis();
-        while((startMillis - currentMillis)<sample_time){
-            currentMillis = millis();
-            get_filtered_analog_reading(true);
-            // Serial.print(">Solenoid value (0-255):");
-            // Serial.print(String(loop_timer) + ":");
-            // Serial.println(i / samples_per_interval);
-        }
+        get_filtered_analog_reading(false);
+        Serial.println(">raw val:"+String(millis())+":"+raw_val);
+        Serial.println(">filtered val:"+String(millis())+":"+filtered_solenoid);
+
+        // Serial.print(">Solenoid value (0-255):");
+        // Serial.print(String(loop_timer) + ":");
+        // Serial.println(i / samples_per_interval);
     }
 }

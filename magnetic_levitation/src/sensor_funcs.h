@@ -110,6 +110,39 @@ int apply_filter(int raw_val, bool apply_moving_average){
 }
 
 
+// defining analog reading variables for use in scripts
+int raw_val; // hall analog reading
+int filtered_val; // filtered analog reading
+float eq_solenoid_correction; // calculated solenoid correction from best fit
+float interp_solenoid_correction; // interp solenoid correction datapoints
+float eq_solenoid;
+float filtered_solenoid;
+float eq_mT;
+float mT;
+float eq_distance;
+float distance_cm;
+// timing variables
+unsigned int end_timer; 
+unsigned int start_timer;
+
+
+int get_filtered_analog_reading(bool apply_moving_average) {
+    // move around start/end to time loop elements
+    // start_timer = millis();     
+    raw_val = get_raw_sensor_value();
+    filtered_solenoid = raw_val-interp_solenoid_correction;
+    filtered_val = apply_filter(filtered_solenoid, apply_moving_average);
+    interp_solenoid_correction = solenoid_correction_interp();
+    mT = hall_mT(filtered_solenoid);
+    distance_cm = mT_to_distance(mT);
+    // end_timer = millis();
+
+    // Serial.print(">loop time:"+String(millis()) + ":");
+    // Serial.println(end_timer-start_timer);
+    return 0;
+}
+
+
 // Apply the voltage-to-mT conversion defined in the hall_mT() function above to transform the analog reading
 // into a magnetic field strength in milliTeslas.
 // float get_filtered_hall_effect_mT(bool apply_moving_average) {

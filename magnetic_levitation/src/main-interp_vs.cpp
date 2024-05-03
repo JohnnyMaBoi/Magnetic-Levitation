@@ -54,7 +54,7 @@ int get_eq_values() {
     Serial.println(eq_distance);
 
     Serial.print(">interp mT:"+String(end_timer) + ":");
-    Serial.println(interp_distance);
+    Serial.println(distance_cm);
 
     Serial.print(">loop time:"+String(end_timer) + ":");
     Serial.println(end_timer-start_timer);
