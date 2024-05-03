@@ -60,8 +60,8 @@ int solenoid_correction_interp() {
 // Basically analogRead(), except it also prints the value if the print function is enabled.
 
 int get_raw_sensor_value() {
-    // int val = analogRead(SENSOR_PIN);
-    int val = ADCH;
+    int val = analogRead(SENSOR_PIN);
+    // int val = ADCH;
     if (PRINT_RAW_SENSOR_VALUE) {
         Serial.print(">Analog Read (raw):");
         Serial.print(String(millis()) + ":");
@@ -88,8 +88,8 @@ int get_sensor_value_with_solenoid_subtracted() {
 // This function takes an argument to determine whether the moving average filter should be applied.
 
 int apply_filter(int raw_val, bool apply_moving_average) {
-    // int minmax_val = minmax_filter(raw_val);
-    int minmax_val = raw_val;
+    int minmax_val = minmax_filter(raw_val);
+    // int minmax_val = raw_val;
 
     int filtered_val = 0;
     // add the option to skip the moving average filter step

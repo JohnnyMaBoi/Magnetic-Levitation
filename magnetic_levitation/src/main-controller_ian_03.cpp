@@ -43,10 +43,10 @@ int between(int lower, int upper, int val) {
 // float Kd = 1.5;
 
 // setpoint
-int steady_state_analog_read = 110;     // with fork, 110 without
+int steady_state_analog_read = 880;     // 110;     // with fork, 110 without
 int steady_state_solenoid_write = 200;  // pwm units
 float Kp = 2.9;
-float Kd = 0.09;
+float Kd = 0.09 / 1000;
 int controller_val;  // val to be written to solenoid
 
 void controller() {
@@ -69,16 +69,16 @@ void setup() {
     setup_moving_average_array();
     setup_solenoid();
     startMillis = micros();  // initial start time
-    Serial.println("Starting ADC setup");
-    adc_setup();
-    Serial.println("Finished ADC setup");
+    // Serial.println("Starting ADC setup");
+    // adc_setup();
+    // Serial.println("Finished ADC setup");
 }
 
 void turn_on_specific_print_statements() {
-    // PRINT_CONTROLLER_VAL = true;
-    // PRINT_FILTERED_SENSOR_VALUE = true;
-    // PRINT_LOOPTIME = true;
-    // PRINT_RAW_SENSOR_VALUE = true;
+    PRINT_CONTROLLER_VAL = true;
+    PRINT_FILTERED_SENSOR_VALUE = true;
+    PRINT_LOOPTIME = true;
+    PRINT_RAW_SENSOR_VALUE = true;
 }
 
 #define N_LOOP_CYCLES_BEFORE_PRINT 1000
@@ -103,10 +103,10 @@ void loop() {
     }
 }
 
-void adc_setup() {
-    // cli();
-    ADCSRA = 0b11110100;
-    ADCSRB = 0b00000000;
-    ADMUX = 0b01100000;
-    // sei();
-}
+// void adc_setup() {
+//     // cli();
+//     ADCSRA = 0b11110100;
+//     ADCSRB = 0b00000000;
+//     ADMUX = 0b01100000;
+//     // sei();
+// }
