@@ -9,8 +9,6 @@
 unsigned long startMillis;  // some global variables available anywhere in the program
 unsigned long currentMillis;
 
-
-
 // good lists:
 // (Kp, Kd, moving average data points, steady_state_distance, steady_state_solenoid)
 // (30, 1, 20, 8.6, 200)
@@ -36,25 +34,24 @@ int between(float lower, float upper, float val) {
 }
 
 // setpoint
-float setpoint = 1.25;       // cm
+float setpoint = 1.25;                  // cm
 int steady_state_solenoid_write = 200;  // pwm units
 float last_distance;
 float Kp = 150;
 float Kd = 0.1;
-int controller_val; // val to be written to solenoid
-float error = 5-setpoint;
+int controller_val;  // val to be written to solenoid
+float error = 5 - setpoint;
 float last_error = error;
 float derror;
 float derror_threshold = .05;
-
 
 void controller() {
     last_error = error;
     // take reading
     get_filtered_analog_reading(false);
-    looptime_ms = millis()-current_millis;
+    looptime_ms = millis() - current_millis;
     current_millis = millis();
-    error = distance_cm-setpoint;
+    error = distance_cm - setpoint;
     // derror = error-last_error;
     // if (derror>derror_threshold){
     //     derror = (derror*1000.0) / (looptime_ms);
@@ -62,7 +59,7 @@ void controller() {
 
     // }
     // else{
-    controller_val = between(0.0, 255.0, Kp*error+steady_state_solenoid_write);
+    controller_val = between(0.0, 255.0, Kp * error + steady_state_solenoid_write);
     // }
     // if (error>0){
     //     controller_val = 255;
@@ -73,17 +70,14 @@ void controller() {
     // int controller_val = between(150, 250, int(Kd * dhalldt_mm_per_s) + steady_state_solenoid_write);
 
     // if (PRINT_CONTROLLER_VAL) {
-    Serial.println(">Controller value (0-255):"+String(millis())+":"+controller_val);
+    Serial.println(">Controller value (0-255):" + String(millis()) + ":" + controller_val);
     // }
     // if (PRINT_LOOPTIME) {
     // Serial.println(">distance:"+String(millis())+":"+distance_cm);
-    Serial.println(">error:"+String(millis())+":"+error);
-
+    Serial.println(">error:" + String(millis()) + ":" + error);
 
     // }
-
 }
-
 
 void setup() {
     Serial.begin(115200);

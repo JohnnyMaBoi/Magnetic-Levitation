@@ -40,7 +40,7 @@ float solenoid_correction_linear() {
     float correction_factor = 0;
     if (most_recent_solenoid_write >= 155) {
         correction_factor = 0.5806 * most_recent_solenoid_write + 432 - 509;
-    } else if ((most_recent_solenoid_write < 155)) { // && (solenoid_write_value > 50)  
+    } else if ((most_recent_solenoid_write < 155)) {  // && (solenoid_write_value > 50)
         correction_factor = 0.0952 * most_recent_solenoid_write + 505 - 509;
     }
     // print values
@@ -52,18 +52,18 @@ float solenoid_correction_linear() {
     return correction_factor;
 }
 
-int solenoid_correction_interp(){
+int solenoid_correction_interp() {
     float correction_factor = linear_interp(most_recent_solenoid_write, solenoid_correction_solenoid_write_data_points, solenoid_correction_sensor_read_data_points, n_solenoid_correction_data_points);
     return correction_factor;
 }
 
-
 // Basically analogRead(), except it also prints the value if the print function is enabled.
 
 int get_raw_sensor_value() {
-    int val = analogRead(SENSOR_PIN);
+    // int val = analogRead(SENSOR_PIN);
+    int val = ADCH;
     if (PRINT_RAW_SENSOR_VALUE) {
-        Serial.print(">Hall analog (raw):");
+        Serial.print(">Analog Read (raw):");
         Serial.print(String(millis()) + ":");
         Serial.println(val);
     }
@@ -87,7 +87,7 @@ int get_sensor_value_with_solenoid_subtracted() {
 // Apply either just the minmax filter, or both minmax and a moving average filter.
 // This function takes an argument to determine whether the moving average filter should be applied.
 
-int apply_filter(int raw_val, bool apply_moving_average){
+int apply_filter(int raw_val, bool apply_moving_average) {
     int minmax_val = minmax_filter(raw_val);
     int filtered_val = 0;
     // add the option to skip the moving average filter step
@@ -97,7 +97,7 @@ int apply_filter(int raw_val, bool apply_moving_average){
         filtered_val = minmax_val;
     }
     if (PRINT_FILTERED_SENSOR_VALUE) {
-        Serial.print(">Hall analog (1-1024 filtered)");
+        Serial.print(">Filtered Analog Read (0-1024)");
         if (apply_moving_average) {
             Serial.print(":");
         } else {
@@ -109,12 +109,12 @@ int apply_filter(int raw_val, bool apply_moving_average){
     return filtered_val;
 }
 
-
 // defining analog reading variables for use in scripts
-int raw_val; // hall analog reading
-int filtered_val; // filtered analog reading
-float eq_solenoid_correction; // calculated solenoid correction from best fit
-float interp_solenoid_correction; // interp solenoid correction datapoints
+int raw_val;                       // hall analog reading
+int filtered_val = 0;              // filtered analog reading
+int prev_filtered_val;             // filtered analog reading
+float eq_solenoid_correction;      // calculated solenoid correction from best fit
+float interp_solenoid_correction;  // interp solenoid correction datapoints
 float eq_solenoid;
 float filtered_solenoid;
 float eq_mT;
@@ -122,74 +122,14 @@ float mT;
 float eq_distance;
 float distance_cm;
 // timing variables
-unsigned int end_timer; 
+unsigned int end_timer;
 unsigned int start_timer;
 
-
-int get_filtered_analog_reading(bool apply_moving_average) {
+void get_filtered_analog_reading(bool apply_moving_average) {
     // move around start/end to time loop elements
-    // start_timer = millis();     
+    prev_filtered_val = filtered_val;
     raw_val = get_raw_sensor_value();
-    filtered_solenoid = raw_val-interp_solenoid_correction;
-    filtered_val = apply_filter(filtered_solenoid, apply_moving_average);
     interp_solenoid_correction = solenoid_correction_interp();
-    mT = hall_mT(filtered_solenoid);
-    distance_cm = mT_to_distance(mT);
-    // end_timer = millis();
-
-    // Serial.print(">loop time:"+String(millis()) + ":");
-    // Serial.println(end_timer-start_timer);
-    return 0;
+    filtered_solenoid = raw_val - interp_solenoid_correction;
+    filtered_val = apply_filter(filtered_solenoid, apply_moving_average);
 }
-
-
-// Apply the voltage-to-mT conversion defined in the hall_mT() function above to transform the analog reading
-// into a magnetic field strength in milliTeslas.
-// float get_filtered_hall_effect_mT(bool apply_moving_average) {
-//     float val = hall_mT(get_filtered_analog_reading(apply_moving_average));
-//     if (PRINT_FILTERED_MT) {
-//         Serial.print(">Hall mT (filtered)");
-//         if (apply_moving_average) {
-//             Serial.print(":");
-//         } else {
-//             Serial.print(" (no mov.avg.):");
-//         }
-//         Serial.print(String(millis()) + ":");
-//         Serial.println(val);
-//     }
-//     return val;
-// }
-
-// Apply the mT-to-distance conversion defined in the mT_to_distance() function above
-// to return the distance of the magnet from the solenoid.
-// float get_filtered_distance_cm(bool apply_moving_average) {
-//     float val = mT_to_distance(get_filtered_hall_effect_mT(apply_moving_average));
-//     if (PRINT_FILTERED_DISTANCE) {
-//         Serial.print(">Distance cm (filtered)");
-//         if (apply_moving_average) {
-//             Serial.print(":");
-//         } else {
-//             Serial.print(" (no mov.avg.):");
-//         }
-//         Serial.print(String(millis()) + ":");
-//         Serial.println(val);
-//     }
-//     return val;
-// }
-
-// Below, we defined aliases for the same functions but with no arguments,
-// such that when no arguments are supplied, the default is true: do apply the moving average filter.
-
-// Defining multiple functions with the same name but with different parameters is a
-// practice in C++ coding called "overloading".
-// int get_filtered_analog_reading() {
-//     return get_filtered_analog_reading();
-// }
-
-// float get_filtered_hall_effect_mT() {
-//     return get_filtered_hall_effect_mT(true);
-// }
-
-// float get_filtered_distance_cm() {
-//     return get_filtered_distance_cm(true);
-// }

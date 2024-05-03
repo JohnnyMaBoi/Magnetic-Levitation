@@ -22,7 +22,6 @@ float moving_minmax_array[moving_minmax_len];
 int prev_minmax_val = 0;
 
 int minmax_filter(int new_val) {
-    int prev_val = moving_minmax_array[0];
     int max_val = -10000;
     int min_val = 10000;
     for (unsigned int i = 0; i < moving_minmax_len - 1; i++) {
@@ -34,8 +33,10 @@ int minmax_filter(int new_val) {
     int max_val_overall = max_val + minmax_diff * buffer_factor;
     int min_val_overall = min_val - minmax_diff * buffer_factor;
 
-    Serial.println(">min_val_overall:"+String(millis())+":"+min_val_overall);
-    Serial.println(">max_val_overall:"+String(millis())+":"+max_val_overall);
+    if (PRINT_MINMAX_RAILS) {
+        Serial.println(">min_val_overall:" + String(millis()) + ":" + min_val_overall);
+        Serial.println(">max_val_overall:" + String(millis()) + ":" + max_val_overall);
+    }
 
     moving_minmax_array[0] = new_val;
     if ((new_val > max_val_overall) || (new_val < min_val_overall)) {
@@ -52,5 +53,8 @@ void setup_moving_average_array() {
     // initialize moving average array to all zeros
     for (unsigned int i = 0; i < moving_average_len; i++) {
         moving_average_array[i] = 0;
+    }
+    for (unsigned int i = 0; i < moving_minmax_len; i++) {
+        moving_minmax_array[i] = 0;
     }
 }
