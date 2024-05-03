@@ -23,7 +23,8 @@ void updateTimers() {
 
 int between(int lower, int upper, int val) {
     if (val < lower) {
-        return lower;
+        return 0;
+        // return lower;
     }
     if (val > upper) {
         return upper;
@@ -35,6 +36,7 @@ int between(int lower, int upper, int val) {
 // (Kp, Kd, moving average data points, steady_state_distance, steady_state_solenoid)
 // (30, 1, 20, 8.6, 200)
 // (10, 0.1, 10, 13, 200)
+// (2, 0.1, 0/20, 110, 200)
 
 // float Kp = 30;
 // float Kd = Kd / 30;
@@ -42,16 +44,16 @@ int between(int lower, int upper, int val) {
 // float Kd = 1.5;
 
 // setpoint
-int steady_state_analog_read = 550;
+int steady_state_analog_read = 135;     // with fork, 110 without
 int steady_state_solenoid_write = 200;  // pwm units
-float Kp = 150;
+float Kp = 4;
 float Kd = 0.1;
 int controller_val;  // val to be written to solenoid
 
 void controller() {
     // take reading
-    int Kd_term = -Kd * (filtered_val - prev_filtered_val) / looptime_ms * 1000;
-    int Kp_term = -Kp * (filtered_val - steady_state_analog_read);
+    int Kd_term = -Kd * (filtered_solenoid - prev_filtered_solenoid) / float(looptime_ms * MICROSECONDS_TO_MILLISECONDS * MILLISECONDS_TO_SECONDS);
+    int Kp_term = -Kp * (filtered_solenoid - steady_state_analog_read);
     controller_val = between(150, 250, Kd_term + Kp_term + steady_state_solenoid_write);
     if (PRINT_CONTROLLER_VAL) {
         Serial.println(">Kd term:" + String(currentMicros * MICROSECONDS_TO_MILLISECONDS) + ":" + Kd_term);
@@ -74,19 +76,20 @@ void setup() {
 }
 
 void turn_on_specific_print_statements() {
-    // PRINT_CONTROLLER_VAL = true;
+    PRINT_CONTROLLER_VAL = true;
     PRINT_FILTERED_SENSOR_VALUE = true;
-    PRINT_LOOPTIME = true;
-    PRINT_RAW_SENSOR_VALUE = true;
+    // PRINT_LOOPTIME = true;
+    // PRINT_RAW_SENSOR_VALUE = true;
 }
 
 #define N_LOOP_CYCLES_BEFORE_PRINT 100
 void loop() {
     for (int loop_cycle = 0; loop_cycle < N_LOOP_CYCLES_BEFORE_PRINT; loop_cycle++) {
-        get_filtered_analog_reading(false);
+        get_filtered_analog_reading(true);
         updateTimers();
         controller();
         write_solenoid(controller_val);
+        // write_solenoid(200);
         if (loop_cycle == 0) {
             turn_on_specific_print_statements();
 

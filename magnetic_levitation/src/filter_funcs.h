@@ -2,7 +2,7 @@
 #include <Arduino.h>
 
 // Perform moving average filter
-const unsigned int moving_average_len = 10;
+const unsigned int moving_average_len = 3;
 int moving_average_array[moving_average_len];
 
 int moving_average_filter(int new_val) {
@@ -16,8 +16,8 @@ int moving_average_filter(int new_val) {
 }
 
 // Perform min-max filter
-const unsigned int moving_minmax_len = 20;
-float buffer_factor = 0;
+const unsigned int moving_minmax_len = 10;
+float buffer_factor = -0.2;
 float moving_minmax_array[moving_minmax_len];
 int prev_minmax_val = 0;
 

@@ -88,7 +88,9 @@ int get_sensor_value_with_solenoid_subtracted() {
 // This function takes an argument to determine whether the moving average filter should be applied.
 
 int apply_filter(int raw_val, bool apply_moving_average) {
-    int minmax_val = minmax_filter(raw_val);
+    // int minmax_val = minmax_filter(raw_val);
+    int minmax_val = raw_val;
+
     int filtered_val = 0;
     // add the option to skip the moving average filter step
     if (apply_moving_average) {
@@ -116,6 +118,7 @@ int prev_filtered_val;             // filtered analog reading
 float eq_solenoid_correction;      // calculated solenoid correction from best fit
 float interp_solenoid_correction;  // interp solenoid correction datapoints
 float eq_solenoid;
+float prev_filtered_solenoid;
 float filtered_solenoid;
 float eq_mT;
 float mT;
@@ -128,6 +131,7 @@ unsigned int start_timer;
 void get_filtered_analog_reading(bool apply_moving_average) {
     // move around start/end to time loop elements
     prev_filtered_val = filtered_val;
+    prev_filtered_solenoid = filtered_solenoid;
     raw_val = get_raw_sensor_value();
     interp_solenoid_correction = solenoid_correction_interp();
     filtered_solenoid = raw_val - interp_solenoid_correction;
