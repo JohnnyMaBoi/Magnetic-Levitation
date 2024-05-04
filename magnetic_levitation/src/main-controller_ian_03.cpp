@@ -75,7 +75,7 @@ void setup() {
 }
 
 void turn_on_specific_print_statements() {
-    turn_all_prints_on();
+    // turn_all_prints_on();
     // PRINT_CONTROLLER_VAL = true;
     // PRINT_FILTERED_SENSOR_VALUE = true;
     // PRINT_LOOPTIME = true;
@@ -94,9 +94,9 @@ void loop() {
             turn_on_specific_print_statements();
 
             looptime_NLoops = (micros() - prevMillisNLoops) / N_LOOP_CYCLES_BEFORE_PRINT;
-            prevMillisNLoops = looptime_NLoops;
+            prevMillisNLoops = micros();
             if (PRINT_LOOPTIME) {
-                Serial.println(">Loop time:" + String(millis()) + ":" + looptime_ms);  // print out the most recent loop time
+                Serial.println(">Loop time:" + String(millis()) + ":" + looptime_NLoops);  // print out the most recent loop time
             }
         } else if (loop_cycle == 1) {
             turn_all_prints_off();
