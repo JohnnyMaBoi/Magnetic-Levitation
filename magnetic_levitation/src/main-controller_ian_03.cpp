@@ -43,10 +43,10 @@ int between(int lower, int upper, int val) {
 // float Kd = 1.5;
 
 // setpoint
-int steady_state_analog_read = -64;     // 620;     // 632;     // 625;     // 880;     // 110;     // with fork, 110 without
+int steady_state_analog_read = -73;
 int steady_state_solenoid_write = 200;  // pwm units
-float Kp = -2.9 * 4;
-float Kd = -0.09 / 1000 * 4;
+float Kp = -2.9 * 1;
+float Kd = -0.09 / 1000 / 2;
 int controller_val;  // val to be written to solenoid
 
 void controller() {
