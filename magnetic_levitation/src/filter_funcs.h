@@ -1,6 +1,21 @@
 #pragma once
 #include <Arduino.h>
 
+#include "filter_funcs.h"
+#include "print_statements.h"
+#include "solenoid_funcs.h"
+
+int solenoid_correction_interp() {
+    // float correction_factor = linear_interp(most_recent_solenoid_write, solenoid_correction_solenoid_write_data_points, solenoid_correction_sensor_read_data_points, n_solenoid_correction_data_points);
+    int correction_factor = most_recent_solenoid_write * -0.8932 + 904;
+    if (PRINT_SOLENDOID_CORRECTION_ANALOG) {
+        Serial.print(">solenoid correction:");
+        Serial.print(String(millis()) + ":");
+        Serial.println(correction_factor);
+    }
+    return correction_factor;
+}
+
 // Perform moving average filter
 const unsigned int moving_average_len = 5;
 int moving_average_array[moving_average_len];
@@ -16,7 +31,7 @@ int moving_average_filter(int new_val) {
 }
 
 // Perform min-max filter
-const unsigned int moving_minmax_len = 10;
+const unsigned int moving_minmax_len = 5;
 float buffer_factor = -0.2;
 float moving_minmax_array[moving_minmax_len];
 int prev_minmax_val = 0;

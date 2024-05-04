@@ -52,11 +52,6 @@ float solenoid_correction_linear() {
     return correction_factor;
 }
 
-int solenoid_correction_interp() {
-    float correction_factor = linear_interp(most_recent_solenoid_write, solenoid_correction_solenoid_write_data_points, solenoid_correction_sensor_read_data_points, n_solenoid_correction_data_points);
-    return correction_factor;
-}
-
 // Basically analogRead(), except it also prints the value if the print function is enabled.
 
 int get_raw_sensor_value() {
@@ -88,8 +83,8 @@ int get_sensor_value_with_solenoid_subtracted() {
 // This function takes an argument to determine whether the moving average filter should be applied.
 
 int apply_filter(int raw_val, bool apply_moving_average) {
-    int minmax_val = minmax_filter(raw_val);
-    // int minmax_val = raw_val;
+    // int minmax_val = minmax_filter(raw_val);
+    int minmax_val = raw_val;
 
     int filtered_val = 0;
     // add the option to skip the moving average filter step
@@ -135,5 +130,10 @@ void get_filtered_analog_reading(bool apply_moving_average) {
     raw_val = get_raw_sensor_value();
     interp_solenoid_correction = solenoid_correction_interp();
     filtered_solenoid = raw_val - interp_solenoid_correction;
+    if (PRINT_CORRECTED_SENSOR_VALUE) {
+        Serial.print(">Solenoid correctin applied:");
+        Serial.print(String(millis()) + ":");
+        Serial.println(filtered_solenoid);
+    }
     filtered_val = apply_filter(filtered_solenoid, apply_moving_average);
 }
